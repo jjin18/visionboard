@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
+.font-handwriting {
+  font-family: 'Patrick Hand', cursive;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f4ece2;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8B4513;
+  border-radius: 6px;
+}
