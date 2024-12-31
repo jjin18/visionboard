@@ -3,6 +3,49 @@ import { motion } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
 import { Plus, X, Type } from 'lucide-react';
 
+const randomTilt = () => `${Math.random() * 6 - 3}deg`;
+
+const noteLineBackground = `
+  repeating-linear-gradient(
+    transparent,
+    transparent 27px,
+    rgba(255, 255, 255, 0.1) 28px
+  )
+`;
+
+const animations = `
+  @keyframes flicker {
+    0%, 89.999%, 90.999%, 91.999%, 92.999%, 93.999%, 95%, 100% {
+      opacity: 0.99;
+      filter: brightness(1);
+    }
+    90%, 91%, 92%, 93%, 94% {
+      opacity: 0.6;
+      filter: brightness(0.8);
+    }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      filter: brightness(1);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
+    }
+    50% {
+      filter: brightness(1.1);
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.25);
+    }
+  }
+
+  @keyframes floatAnimation {
+    0%, 100% {
+      transform: translateY(0px) rotate(var(--rotation));
+    }
+    50% {
+      transform: translateY(-5px) rotate(var(--rotation));
+    }
+  }
+`;
+
 const DreamBoard = () => {
   const [stickers, setStickers] = useState([]);
   const [cards, setCards] = useState([]);
@@ -16,7 +59,6 @@ const DreamBoard = () => {
     image: null
   });
 
-  // Load data from localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem('dreamBoard2025');
@@ -31,14 +73,13 @@ const DreamBoard = () => {
     }
   }, []);
 
-  // Save data to localStorage
   useEffect(() => {
     const saveData = () => {
       try {
         localStorage.setItem('dreamBoard2025', JSON.stringify({
           stickers: stickers.map(s => ({
             ...s,
-            image: s.image?.slice(0, 1000000) // Truncate large images
+            image: s.image?.slice(0, 1000000)
           })),
           cards,
           notes
@@ -61,7 +102,7 @@ const DreamBoard = () => {
             x: Math.random() * (window.innerWidth - 200),
             y: Math.random() * (window.innerHeight - 200)
           },
-          rotation: `${Math.random() * 20 - 10}deg`
+          rotation: randomTilt()
         };
         setStickers(prev => [...prev, newSticker]);
       };
@@ -76,20 +117,24 @@ const DreamBoard = () => {
   });
 
   return (
-    <div {...getRootProps()} className="min-h-screen bg-[#0d0d0d] p-8" style={{
-      backgroundImage: 'radial-gradient(circle at top left, #1a1a1a, #0d0d0d 60%)',
-    }}>
+    <div {...getRootProps()} className="min-h-screen bg-[#0D1117] p-8">
+      <style>{animations}</style>
       <input {...getInputProps()} />
+      
       <div className="max-w-8xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1
-            className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500"
-            style={{
-              textShadow: '0 0 20px cyan, 0 0 30px purple',
-            }}
-          >
-            DREAMS 2025 ✨
+          <h1 className="text-6xl font-black tracking-tight">
+            <span className="relative text-white" style={{
+              animation: 'flicker 8s linear infinite',
+              textShadow: `
+                0 0 2px #fff,
+                0 0 4px #fff,
+                0 0 8px cyan,
+                0 0 12px cyan
+              `
+            }}>VISION BOARD 2025</span>
           </h1>
+          
           <div className="flex gap-4">
             <button
               onClick={() => {
@@ -100,34 +145,51 @@ const DreamBoard = () => {
                     x: Math.random() * (window.innerWidth - 300),
                     y: Math.random() * (window.innerHeight - 400)
                   },
-                  rotation: `${Math.random() * 10 - 5}deg`
+                  rotation: randomTilt()
                 }]);
               }}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
+              className="group relative px-6 py-3 rounded-xl overflow-hidden bg-[#1A2233] hover:bg-[#1E2943] transition-all duration-300"
+              style={{
+                boxShadow: '0 0 10px rgba(0, 255, 255, 0.2)',
+                animation: 'pulseGlow 4s ease-in-out infinite'
+              }}
             >
-              <Type className="w-5 h-5 mr-2" />
-              Add Note
+              <span className="absolute inset-0 opacity-50 bg-gradient-to-r from-cyan-500/20 to-blue-500/20" />
+              <span className="relative text-white flex items-center font-medium">
+                <Type className="w-5 h-5 mr-2" />
+                Add Note
+              </span>
             </button>
+            
             <button
               onClick={() => {
                 setModal(true);
                 setEditingCard(null);
               }}
-              className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
+              className="group relative px-6 py-3 rounded-xl overflow-hidden bg-[#1A2233] hover:bg-[#1E2943] transition-all duration-300"
               style={{
-                boxShadow: '0 0 20px rgba(255, 20, 147, 0.8), 0 0 30px rgba(128, 0, 128, 0.8)',
-                textShadow: '0 0 15px rgba(255, 20, 147, 0.8)'
+                boxShadow: '0 0 10px rgba(255, 0, 255, 0.2)',
+                animation: 'pulseGlow 4s ease-in-out infinite'
               }}
             >
-              <Plus className="w-5 h-5 mr-2" />
-              Add Vision
+              <span className="absolute inset-0 opacity-50 bg-gradient-to-r from-purple-500/20 to-pink-500/20" />
+              <span className="relative text-white flex items-center font-medium">
+                <Plus className="w-5 h-5 mr-2" />
+                Add Vision
+              </span>
             </button>
           </div>
         </div>
 
-        <div className="relative h-[90vh] bg-[#1a1a1a] rounded-2xl shadow-2xl p-12 overflow-hidden border-4" style={{
-          borderColor: '#333',
-          boxShadow: '0 0 20px rgba(128, 0, 128, 0.8), 0 0 40px rgba(0, 191, 255, 0.8)'
+        <div className="relative h-[90vh] rounded-2xl p-12 overflow-hidden bg-[#0A0F18]" style={{
+          boxShadow: `
+            0 0 7px #fff,
+            0 0 10px #fff,
+            0 0 21px cyan,
+            inset 0 0 30px rgba(0, 255, 255, 0.15)
+          `,
+          border: '1px solid rgba(0, 255, 255, 0.3)',
+          backdropFilter: 'blur(10px)'
         }}>
           {stickers.map(sticker => (
             <motion.div
@@ -148,77 +210,27 @@ const DreamBoard = () => {
                 setStickers(newStickers);
               }}
             >
-              <div
+              <motion.div
                 className="relative"
-                style={{ rotate: sticker.rotation, opacity: 0.9 }}
+                initial={{ rotate: randomTilt() }}
+                style={{
+                  filter: 'drop-shadow(0 0 8px rgba(0, 255, 255, 0.4))',
+                  animation: 'floatAnimation 3s ease-in-out infinite',
+                  '--rotation': randomTilt()
+                }}
               >
                 <img
                   src={sticker.image}
                   alt="sticker"
                   className="w-32 h-32 object-contain"
-                  style={{
-                    filter: 'drop-shadow(0 0 10px rgba(0, 191, 255, 0.8))'
-                  }}
                 />
                 <button
                   onClick={() => setStickers(stickers.filter(s => s.id !== sticker.id))}
-                  className="absolute -top-2 -right-2 bg-black/70 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                  className="absolute -top-2 -right-2 bg-black/70 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <X className="w-4 h-4 text-red-500" />
                 </button>
-              </div>
-            </motion.div>
-          ))}
-
-          {notes.map(note => (
-            <motion.div
-              key={note.id}
-              className="absolute cursor-move group"
-              initial={note.position}
-              drag
-              dragMomentum={false}
-              style={{ rotate: note.rotation, opacity: 0.9 }}
-              onDragEnd={(e, info) => {
-                const newNotes = notes.map(n =>
-                  n.id === note.id
-                    ? { ...n, position: {
-                      x: n.position.x + info.offset.x,
-                      y: n.position.y + info.offset.y
-                    } }
-                    : n
-                );
-                setNotes(newNotes);
-              }}
-            >
-              <div className="bg-[#333333] text-white p-6 rounded-xl shadow-xl relative" style={{
-                backgroundImage: 'repeating-linear-gradient(transparent, transparent 30px, #444444 31px)',
-                lineHeight: '31px',
-                fontFamily: 'Monospace',
-                opacity: 0.8,
-                backdropFilter: 'blur(4px)',
-                border: '1px solid rgba(192, 192, 192, 0.8)',
-                boxShadow: '0 0 10px rgba(192, 192, 192, 0.8)'
-              }}>
-                <textarea
-                  className="w-full bg-transparent resize-none outline-none text-white"
-                  value={note.text}
-                  onChange={(e) => {
-                    setNotes(notes.map(n =>
-                      n.id === note.id ? { ...n, text: e.target.value } : n
-                    ));
-                  }}
-                  style={{
-                    height: '150px',
-                    padding: '4px'
-                  }}
-                />
-                <button
-                  onClick={() => setNotes(notes.filter(n => n.id !== note.id))}
-                  className="absolute -top-2 -right-2 bg-black/70 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity p-1"
-                >
-                  <X className="w-4 h-4 text-red-500" />
-                </button>
-              </div>
+              </motion.div>
             </motion.div>
           ))}
 
@@ -235,7 +247,7 @@ const DreamBoard = () => {
                     ? { ...c, position: {
                       x: c.position.x + info.offset.x,
                       y: c.position.y + info.offset.y
-                    }, rotation: c.rotation }
+                    } }
                     : c
                 );
                 setCards(newCards);
@@ -245,48 +257,133 @@ const DreamBoard = () => {
                 setModal(true);
               }}
             >
-              <div className="bg-[#222222] text-white p-4 rounded-xl shadow-2xl w-72 transform transition-all border-2" style={{
-                borderColor: 'rgba(192, 192, 192, 0.8)',
-                opacity: 0.9,
-                backdropFilter: 'blur(4px)',
-                boxShadow: '0 0 15px rgba(192, 192, 192, 0.8)',
-                transform: `rotate(${card.rotation || 0}deg)`
-              }}>
-                <img
-                  src={card.image}
-                  alt={card.title}
-                  className="w-full h-48 object-cover rounded-lg shadow-inner mb-3"
-                />
+              <motion.div
+                className="bg-[#1A2233]/90 text-white p-4 rounded-xl w-72 backdrop-blur-lg"
+                initial={{ rotate: randomTilt() }}
+                style={{
+                  boxShadow: '0 0 20px rgba(0, 255, 255, 0.15)',
+                  border: '1px solid rgba(0, 255, 255, 0.2)',
+                  animation: 'pulseGlow 4s ease-in-out infinite'
+                }}
+              >
+                {card.image && (
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    className="w-full h-48 object-cover rounded-lg mb-3"
+                    style={{
+                      boxShadow: '0 0 15px rgba(0, 255, 255, 0.2)'
+                    }}
+                  />
+                )}
                 <div className="text-center p-2">
-                  <h3 className="text-xl font-bold mb-1 text-cyan-400">{card.title}</h3>
+                  <h3 className="text-xl font-bold mb-1" style={{
+                    color: '#fff',
+                    textShadow: '0 0 5px cyan, 0 0 8px cyan'
+                  }}>{card.title}</h3>
                   <p className="text-sm text-gray-300">{card.description}</p>
-                  <span className="text-xs text-purple-400 mt-2 block font-semibold">{card.deadline}</span>
+                  <span className="text-xs mt-2 block font-medium" style={{
+                    color: '#fff',
+                    textShadow: '0 0 5px magenta'
+                  }}>{card.deadline}</span>
                 </div>
                 <button
                   onClick={() => setCards(cards.filter(c => c.id !== card.id))}
-                  className="absolute -top-2 -right-2 bg-black/70 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                  className="absolute -top-2 -right-2 bg-black/70 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <X className="w-4 h-4 text-red-500" />
                 </button>
-              </div>
+              </motion.div>
+            </motion.div>
+          ))}
+
+          {notes.map(note => (
+            <motion.div
+              key={note.id}
+              className="absolute cursor-move group"
+              initial={note.position}
+              drag
+              dragMomentum={false}
+              onDragEnd={(e, info) => {
+                const newNotes = notes.map(n =>
+                  n.id === note.id
+                    ? { ...n, position: {
+                      x: n.position.x + info.offset.x,
+                      y: n.position.y + info.offset.y
+                    } }
+                    : n
+                );
+                setNotes(newNotes);
+              }}
+            >
+              <motion.div
+                className="bg-[#1A2233]/90 p-6 rounded-xl backdrop-blur-md"
+                initial={{ rotate: randomTilt() }}
+                style={{
+                  boxShadow: '0 0 20px rgba(255, 0, 255, 0.15)',
+                  border: '1px solid rgba(255, 0, 255, 0.2)',
+                  animation: 'pulseGlow 4s ease-in-out infinite'
+                }}
+              >
+                <div 
+                  className="relative" 
+                  style={{ 
+                    backgroundImage: noteLineBackground,
+                    backgroundSize: '100% 28px',
+                    backgroundRepeat: 'repeat-y',
+                    backgroundPosition: '0 4px'
+                  }}
+                >
+                  <textarea
+                    className="w-full bg-transparent resize-none outline-none text-white"
+                    value={note.text}
+                    onChange={(e) => {
+                      setNotes(notes.map(n =>
+                        n.id === note.id ? { ...n, text: e.target.value } : n
+                      ));
+                    }}
+                    style={{
+                      height: '150px',
+                      lineHeight: '28px',
+                      textShadow: '0 0 3px rgba(255, 0, 255, 0.3)'
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={() => setNotes(notes.filter(n => n.id !== note.id))}
+                  className="absolute -top-2 -right-2 bg-black/70 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="w-4 h-4 text-red-500" />
+                </button>
+              </motion.div>
             </motion.div>
           ))}
 
           {modal && (
-            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50">
               <motion.div
-                className="bg-[#222222] text-white rounded-2xl p-8 w-[480px] max-w-full shadow-2xl border border-gray-700"
+                className="bg-[#1A2233]/90 text-white rounded-2xl p-8 w-[480px] max-w-full"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
+                style={{
+                  boxShadow: '0 0 20px rgba(0, 255, 255, 0.15)',
+                  border: '1px solid rgba(0, 255, 255, 0.2)'
+                }}
               >
-                <h2 className="text-2xl font-bold mb-6 text-center text-cyan-400">
-                  {editingCard ? 'Edit Vision ✨' : 'Add Vision ✨'}
+                <h2 className="text-2xl font-bold mb-6 text-center" style={{
+                  textShadow: '0 0 3px cyan, 0 0 5px cyan'
+                }}>
+                  {editingCard ? 'Edit Vision' : 'Add Vision'}
                 </h2>
                 <div className="space-y-4">
                   <input
                     type="text"
                     placeholder="Vision Title"
-                    className="w-full p-3 bg-[#333333] text-white border border-gray-600 rounded-xl focus:ring-2 focus:ring-cyan-400 outline-none"
+                    className="w-full p-3 bg-[#0A0F18]/80 text-white rounded-xl"
+                    style={{
+                      boxShadow: '0 0 10px rgba(0, 255, 255, 0.1)',
+                      border: '1px solid rgba(0, 255, 255, 0.2)'
+                    }}
                     value={editingCard ? editingCard.title : newCard.title}
                     onChange={(e) => {
                       if (editingCard) {
@@ -298,7 +395,11 @@ const DreamBoard = () => {
                   />
                   <textarea
                     placeholder="Description"
-                    className="w-full p-3 bg-[#333333] text-white border border-gray-600 rounded-xl focus:ring-2 focus:ring-cyan-400 outline-none h-24"
+                    className="w-full p-3 bg-[#0A0F18]/80 text-white rounded-xl h-24"
+                    style={{
+                      boxShadow: '0 0 10px rgba(0, 255, 255, 0.1)',
+                      border: '1px solid rgba(0, 255, 255, 0.2)'
+                    }}
                     value={editingCard ? editingCard.description : newCard.description}
                     onChange={(e) => {
                       if (editingCard) {
@@ -311,7 +412,11 @@ const DreamBoard = () => {
                   <input
                     type="text"
                     placeholder="Target Date"
-                    className="w-full p-3 bg-[#333333] text-white border border-gray-600 rounded-xl focus:ring-2 focus:ring-cyan-400 outline-none"
+                    className="w-full p-3 bg-[#0A0F18]/80 text-white rounded-xl"
+                    style={{
+                      boxShadow: '0 0 10px rgba(0, 255, 255, 0.1)',
+                      border: '1px solid rgba(0, 255, 255, 0.2)'
+                    }}
                     value={editingCard ? editingCard.deadline : newCard.deadline}
                     onChange={(e) => {
                       if (editingCard) {
@@ -321,10 +426,30 @@ const DreamBoard = () => {
                       }
                     }}
                   />
-                  <div className="border-2 border-solid border-cyan-500 rounded-xl p-8 hover:border-cyan-400 transition-colors">
+                  <div 
+                    className="border rounded-xl p-8 transition-all hover:border-cyan-500/30" 
+                    style={{
+                      boxShadow: '0 0 10px rgba(0, 255, 255, 0.1)',
+                      border: '1px solid rgba(0, 255, 255, 0.2)',
+                      background: 'rgba(10, 15, 24, 0.8)'
+                    }}
+                  >
                     <label className="flex flex-col items-center cursor-pointer">
-                      <Plus className="w-12 h-12 text-gray-400 mb-2" />
-                      <span className="text-gray-400">Drop your vision here</span>
+                      <Plus 
+                        className="w-12 h-12 mb-2" 
+                        style={{
+                          color: 'cyan',
+                          filter: 'drop-shadow(0 0 3px cyan)'
+                        }} 
+                      />
+                      <span 
+                        className="text-cyan-500"
+                        style={{
+                          textShadow: '0 0 3px cyan'
+                        }}
+                      >
+                        Drop your vision here
+                      </span>
                       <input
                         type="file"
                         className="hidden"
@@ -352,7 +477,7 @@ const DreamBoard = () => {
                         setModal(false);
                         setEditingCard(null);
                       }}
-                      className="px-6 py-2 text-gray-400 hover:text-gray-200 rounded-xl"
+                      className="px-6 py-2 text-gray-400 hover:text-white rounded-xl transition-colors"
                     >
                       Cancel
                     </button>
@@ -371,19 +496,23 @@ const DreamBoard = () => {
                                 x: Math.random() * (window.innerWidth - 300),
                                 y: Math.random() * (window.innerHeight - 400)
                               },
-                              rotation: `${Math.random() * 10 - 5}deg`
+                              rotation: randomTilt()
                             }
                           ]);
                           setNewCard({ title: '', description: '', deadline: '', image: null });
                         }
                         setModal(false);
                       }}
-                      className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-6 py-2 rounded-xl shadow-lg"
+                      className="relative group px-6 py-2 rounded-xl overflow-hidden bg-[#1A2233] hover:bg-[#1E2943] transition-all duration-300"
                       style={{
-                        boxShadow: '0 0 20px rgba(0, 191, 255, 0.8), 0 0 30px rgba(128, 0, 128, 0.8)',
+                        boxShadow: '0 0 10px rgba(0, 255, 255, 0.2)',
+                        animation: 'pulseGlow 4s ease-in-out infinite'
                       }}
                     >
-                      {editingCard ? 'Save Changes' : 'Add Vision'}
+                      <span className="absolute inset-0 opacity-50 bg-gradient-to-r from-cyan-500/20 to-purple-500/20" />
+                      <span className="relative text-white font-medium">
+                        {editingCard ? 'Save Changes' : 'Add Vision'}
+                      </span>
                     </button>
                   </div>
                 </div>
