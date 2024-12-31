@@ -132,7 +132,7 @@ const DreamBoard = () => {
                 0 0 8px cyan,
                 0 0 12px cyan
               `
-            }}>VISION BOARD 2025</span>
+            }}>VISIONBOARD 2025</span>
           </h1>
           
           <div className="flex gap-4">
